@@ -1,0 +1,22 @@
+{
+	"name":"Entrance to the Chaos",
+	"codename":"EntrancetotheChaos",
+	"artist": "打打だいず vs siromaru",
+	"musicFile":"EntrancetotheChaos.mp3",
+	"ezRanking":8.8,
+	"hdRanking":13.7,
+	"inRanking":16.8,
+	"atRanking":17.6,
+	"chartEZ":"EntrancetotheChaos_EZ.json",
+	"chartHD":"EntrancetotheChaos_HD.json",
+	"chartIN":"EntrancetotheChaos_IN.json",
+	"chartAT":"EntrancetotheChaos_AT.json",
+	"chartLegacy":"EntrancetotheChaos_AT.json",
+	"illustration":"EntrancetotheChaos.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"atChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

@@ -1,0 +1,19 @@
+{
+	"name":"True Home, True World (Rework)",
+	"codename":"TrueHomeTrueWorld",
+	"artist": "816ThreeNumbers",
+	"musicFile":"TrueHomeTrueWorld.mp3",
+	"ezRanking":5,
+	"hdRanking":11.9,
+	"inRanking":15.8,
+	"chartEZ":"TrueHomeTrueWorld_EZ.json",
+	"chartHD":"TrueHomeTrueWorld_HD.json",
+	"chartIN":"TrueHomeTrueWorld_IN.json",
+	"chartLegacy":"TrueHomeTrueWorld_IN.json",
+	"illustration":"TrueHomeTrueWorld.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

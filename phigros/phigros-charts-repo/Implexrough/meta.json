@@ -1,0 +1,19 @@
+{
+	"name":"Implexrough",
+	"codename":"Implexrough",
+	"artist": "Silentroommommy",
+	"musicFile":"Implexrough.mp3",
+	"ezRanking":5.5,
+	"hdRanking":10.2,
+	"inRanking":15.3,
+	"chartEZ":"Implexrough_EZ.json",
+	"chartHD":"Implexrough_HD.json",
+	"chartIN":"Implexrough_IN.json",
+	"chartLegacy":"Implexrough_IN.json",
+	"illustration":"Implexrough.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

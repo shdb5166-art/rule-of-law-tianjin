@@ -1,0 +1,22 @@
+{
+	"name":"What do you want more than a Happy ending?",
+	"codename":"WhatdoyouwantmorethanaHappyending",
+	"artist": "Apo11oHALOprogram ft. 安月名莉子 / 大瀬良あい",
+	"musicFile":"WhatdoyouwantmorethanaHappyending.mp3",
+	"ezRanking":0.5,
+	"hdRanking":11.5,
+	"inRanking":16.1,
+	"atRanking":17.1,
+	"chartEZ":"WhatdoyouwantmorethanaHappyending_EZ.json",
+	"chartHD":"WhatdoyouwantmorethanaHappyending_HD.json",
+	"chartIN":"WhatdoyouwantmorethanaHappyending_IN.json",
+	"chartAT":"WhatdoyouwantmorethanaHappyending_AT.json",
+	"chartLegacy":"WhatdoyouwantmorethanaHappyending_AT.json",
+	"illustration":"WhatdoyouwantmorethanaHappyending.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"atChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

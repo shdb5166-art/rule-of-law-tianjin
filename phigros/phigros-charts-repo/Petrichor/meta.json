@@ -1,0 +1,22 @@
+{
+	"name":"Petrichor",
+	"codename":"Petrichor",
+	"artist": "void (Mournfinale)",
+	"musicFile":"Petrichor.mp3",
+	"ezRanking":7,
+	"hdRanking":13.8,
+	"inRanking":16.5,
+	"atRanking":17.5,
+	"chartEZ":"Petrichor_EZ.json",
+	"chartHD":"Petrichor_HD.json",
+	"chartIN":"Petrichor_IN.json",
+	"chartAT":"Petrichor_AT.json",
+	"chartLegacy":"Petrichor_AT.json",
+	"illustration":"Petrichor.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"atChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

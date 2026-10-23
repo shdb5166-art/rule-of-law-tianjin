@@ -1,0 +1,22 @@
+{
+	"name":"Desultory Signals",
+	"codename":"DesultorySignals",
+	"artist": "technoplanet",
+	"musicFile":"DesultorySignals.mp3",
+	"ezRanking":10.0,
+	"hdRanking":14.0,
+	"inRanking":17.0,
+	"atRanking":18.0,
+	"chartEZ":"DesultorySignals_EZ.json",
+	"chartHD":"DesultorySignals_HD.json",
+	"chartIN":"DesultorySignals_IN.json",
+	"chartAT":"DesultorySignals_AT.json",
+	"chartLegacy":"DesultorySignals_AT.json",
+	"illustration":"DesultorySignals.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"atChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

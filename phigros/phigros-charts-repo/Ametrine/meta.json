@@ -1,0 +1,22 @@
+{
+	"name":"Ametrine",
+	"codename":"Ametrine",
+	"artist": "GRYSCLMIssionary",
+	"musicFile":"Ametrine.mp3",
+	"ezRanking":6.0,
+	"hdRanking":12.2,
+	"inRanking":15.0,
+	"atRanking":16.2,
+	"chartEZ":"Ametrine_EZ.json",
+	"chartHD":"Ametrine_HD.json",
+	"chartIN":"Ametrine_IN.json",
+	"chartAT":"Ametrine_AT.json",
+	"chartLegacy":"Ametrine_AT.json",
+	"illustration":"Ametrine.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"atChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

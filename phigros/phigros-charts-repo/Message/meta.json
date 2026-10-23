@@ -1,0 +1,22 @@
+{
+	"name":"Message",
+	"codename":"Message",
+	"artist": "くるぶっこちゃん",
+	"musicFile":"Message.mp3",
+	"ezRanking":3.0,
+	"hdRanking":13.2,
+	"inRanking":15.6,
+	"atRanking":16.5,
+	"chartEZ":"Message_EZ.json",
+	"chartHD":"Message_HD.json",
+	"chartIN":"Message_IN.json",
+	"chartAT":"Message_AT.json",
+	"chartLegacy":"Message_AT.json",
+	"illustration":"Message.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"atChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

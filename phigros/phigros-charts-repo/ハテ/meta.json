@@ -1,0 +1,22 @@
+{
+	"name":"ハテ",
+	"codename":"ハテ",
+	"artist": "rN || Frums",
+	"musicFile":"ハテ.mp3",
+	"ezRanking":9,
+	"hdRanking":13.9,
+	"inRanking":16.7,
+	"atRanking":17.9,
+	"chartEZ":"ハテ_EZ.json",
+	"chartHD":"ハテ_HD.json",
+	"chartIN":"ハテ_IN.json",
+	"chartAT":"ハテ_AT.json",
+	"chartLegacy":"ハテ_AT.json",
+	"illustration":"ハテ.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"atChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

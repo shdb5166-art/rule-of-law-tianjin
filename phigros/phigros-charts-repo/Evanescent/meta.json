@@ -1,0 +1,19 @@
+{
+	"name":"Evanescent",
+	"codename":"Evanescent",
+	"artist": "LeaF",
+	"musicFile":"Evanescent.mp3",
+	"ezRanking":6.5,
+	"hdRanking":12.6,
+	"inRanking":15.7,
+	"chartEZ":"Evanescent_EZ.json",
+	"chartHD":"Evanescent_HD.json",
+	"chartIN":"Evanescent_IN.json",
+	"chartLegacy":"Evanescent_IN.json",
+	"illustration":"Evanescent.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

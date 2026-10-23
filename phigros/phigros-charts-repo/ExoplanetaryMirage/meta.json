@@ -1,0 +1,22 @@
+{
+	"name":"Exoplanetary Mirage",
+	"codename":"ExoplanetaryMirage",
+	"artist": "かめりあ",
+	"musicFile":"ExoplanetaryMirage.mp3",
+	"ezRanking":8.7,
+	"hdRanking":13.4,
+	"inRanking":16.8,
+	"atRanking":17.9,
+	"chartEZ":"ExoplanetaryMirage_EZ.json",
+	"chartHD":"ExoplanetaryMirage_HD.json",
+	"chartIN":"ExoplanetaryMirage_IN.json",
+	"chartAT":"ExoplanetaryMirage_AT.json",
+	"chartLegacy":"ExoplanetaryMirage_AT.json",
+	"illustration":"ExoplanetaryMirage.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"atChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}

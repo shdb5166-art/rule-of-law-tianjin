@@ -1,0 +1,19 @@
+{
+	"name":"About The Universe",
+	"codename":"AboutTheUniverse",
+	"artist": "SOTUIMIssionary",
+	"musicFile":"AboutTheUniverse.mp3",
+	"ezRanking":4.5,
+	"hdRanking":9.7,
+	"inRanking":14.4,
+	"chartEZ":"AboutTheUniverse_EZ.json",
+	"chartHD":"AboutTheUniverse_HD.json",
+	"chartIN":"AboutTheUniverse_IN.json",
+	"chartLegacy":"AboutTheUniverse_IN.json",
+	"illustration":"AboutTheUniverse.png",
+	"ezChartDesigner":"未知",
+	"hdChartDesigner":"未知",
+	"inChartDesigner":"未知",
+	"illustrator":"未知",
+	"sliceAudioStart":"30"
+}
