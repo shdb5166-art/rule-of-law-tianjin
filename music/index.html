@@ -765,7 +765,7 @@ body {
   z-index: 150;
   width: calc(100% - 40px);
   max-width: 400px;
-  max-height: 300px;
+  max-height: 420px;
   background: linear-gradient(135deg, rgba(15,15,25,0.85) 0%, rgba(8,8,15,0.8) 100%);
   backdrop-filter: blur(30px) saturate(1.5);
   -webkit-backdrop-filter: blur(30px) saturate(1.5);
@@ -800,6 +800,136 @@ body {
 .playlist-header .count {
   font-size: 11px;
   color: rgba(255,255,255,0.5);
+}
+
+/* 歌单切换器 - 两卡片错开重叠 + 翻牌 */
+.playlist-switcher {
+  position: relative;
+  height: 86px;
+  margin: 14px 20px 4px;
+  perspective: 700px;
+}
+
+.pl-card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 150px;
+  height: 72px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: linear-gradient(135deg, rgba(35,35,50,0.95) 0%, rgba(20,20,35,0.9) 100%);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+  transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.4s ease, filter 0.4s ease, box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pl-card .pl-card-cover {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.pl-card .pl-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pl-card .pl-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pl-card .pl-card-name {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pl-card .pl-card-count {
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 3px;
+}
+
+/* 激活卡片（在上面） */
+.pl-card.active {
+  transform: translateX(-50%) translateX(-8px) translateY(0) rotate(0deg) scale(1);
+  z-index: 2;
+  opacity: 1;
+  filter: none;
+  border-color: rgba(79,195,247,0.45);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 16px rgba(79,195,247,0.18);
+}
+
+/* 非激活卡片（错开重叠在下面） */
+.pl-card.inactive {
+  transform: translateX(-50%) translateX(16px) translateY(6px) rotate(4deg) scale(0.92);
+  z-index: 1;
+  opacity: 0.78;
+  filter: brightness(0.75);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+}
+
+/* 翻牌动画类 - 目标卡片从下方翻上来 */
+.pl-card.flip-to-top {
+  animation: flipToTop 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+.pl-card.flip-to-bottom {
+  animation: flipToBottom 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+@keyframes flipToTop {
+  0% {
+    transform: translateX(-50%) translateX(16px) translateY(6px) rotate(4deg) scale(0.92);
+    opacity: 0.78;
+    z-index: 1;
+  }
+  40% {
+    transform: translateX(-50%) translateX(4px) translateY(2px) rotate(2deg) scale(0.96);
+    opacity: 0.9;
+    z-index: 3;
+  }
+  100% {
+    transform: translateX(-50%) translateX(-8px) translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+    z-index: 2;
+    filter: none;
+  }
+}
+
+@keyframes flipToBottom {
+  0% {
+    transform: translateX(-50%) translateX(-8px) translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+    z-index: 2;
+  }
+  60% {
+    transform: translateX(-50%) translateX(8px) translateY(3px) rotate(2deg) scale(0.95);
+    opacity: 0.85;
+    z-index: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateX(16px) translateY(6px) rotate(4deg) scale(0.92);
+    opacity: 0.78;
+    z-index: 1;
+    filter: brightness(0.75);
+  }
 }
 
 .playlist-items {
@@ -895,6 +1025,8 @@ body {
   .ios-switcher { right: -28px; }
   .ios-dot { width: 44px; height: 44px; }
   .ios-dot.song-item { width: 40px; height: 40px; }
+  .playlist-switcher { height: 80px; margin: 12px 12px 4px; }
+  .pl-card { width: 140px; height: 66px; }
 }
 </style>
 </head>
@@ -996,9 +1128,10 @@ body {
 <!-- 播放列表面板 -->
 <div class="playlist-panel" id="playlistPanel">
   <div class="playlist-header">
-    <span class="title">播放列表</span>
+    <span class="title" id="playlistTitle">播放列表</span>
     <span class="count" id="playlistCount">4首</span>
   </div>
+  <div class="playlist-switcher" id="playlistSwitcher"></div>
   <div class="playlist-items" id="playlistItems"></div>
 </div>
 
@@ -1009,22 +1142,7 @@ body {
       <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
     </svg>
   </div>
-  <div class="ios-dot song-item" data-index="0">
-    <img src="images/cover.jpg" alt="">
-    <span class="song-label">朋友的酒</span>
-  </div>
-  <div class="ios-dot song-item" data-index="1">
-    <img src="images/cover-wangqing.jpg" alt="">
-    <span class="song-label">忘情牛肉面</span>
-  </div>
-  <div class="ios-dot song-item" data-index="2">
-    <img src="images/cover-wangqing-remix.jpg" alt="">
-    <span class="song-label">忘情牛肉面 Remix</span>
-  </div>
-  <div class="ios-dot song-item" data-index="3">
-    <img src="images/cover-yu-ai.jpg" alt="">
-    <span class="song-label">雨爱</span>
-  </div>
+  <div class="ios-song-dots" id="iosSongDots" style="display:contents"></div>
   <div class="ios-dot divider"></div>
   <div class="ios-dot web-switch" id="webSwitchBtn" title="切换网页">
     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -1095,250 +1213,366 @@ body {
 <audio id="audio" src="assets/bgm.mp3" preload="auto" loop></audio>
 
 <script>
-// 歌曲数据
-const songs = [
-  {
-    name: '朋友的酒 (DJ-梦ノ結唱)',
-    artist: '希玥不月半',
-    meta: '词：积木鱼 · 曲：积木鱼',
-    audio: 'assets/bgm.mp3',
-    cover: 'images/cover.jpg',
-    bg: 'gif', // 使用原有bg.gif
-    lyrics: [
-      { time: 0, text: '词：积木鱼' },
-      { time: 2, text: '曲：积木鱼' },
-      { time: 5, text: '昨日一去不复回 哦吔' },
-      { time: 9, text: '开心比什么都贵' },
-      { time: 13, text: '覆水不能再收回 哦吔' },
-      { time: 17, text: '桃花谢了有玫瑰' },
-      { time: 21, text: '人生几十年' },
-      { time: 24, text: '总会有风雨来陪' },
-      { time: 27, text: '潇潇洒洒赴会' },
-      { time: 30, text: '今不醉不归' },
-      { time: 33, text: '往事后不后悔' },
-      { time: 36, text: '慢慢去体会' },
-      { time: 39, text: '此刻朋友这杯酒' },
-      { time: 42, text: '最珍贵' },
-      { time: 46, text: '快把酒满上干了这杯' },
-      { time: 49, text: '大声歌唱好朋友好朋友' },
-      { time: 52, text: '今宵多欢畅' },
-      { time: 56, text: '理想改变了 我们的模样' },
-      { time: 60, text: '也让我懂得了要珍惜' },
-      { time: 63, text: '朋友的肩膀' },
-      { time: 67, text: '阳光总会在风雨之后' },
-      { time: 70, text: '撒向苍茫让我们抬起头' },
-      { time: 73, text: '学会了坚强' },
-      { time: 77, text: '就像朋友的这杯烈酒' },
-      { time: 80, text: '烫我心上温暖我凡事' },
-      { time: 83, text: '别再放心上' },
-      { time: 88, text: '今天我们来相会 哦吔' },
-      { time: 92, text: '深情斟满了酒杯' },
-      { time: 96, text: '岁月匆匆如流水 哦吔' },
-      { time: 100, text: '管他昨天谁是谁' },
-      { time: 104, text: '人生的旅程' },
-      { time: 107, text: '有苦有甜也有泪' },
-      { time: 110, text: '好汉不提当年' },
-      { time: 113, text: '酒再干一杯' },
-      { time: 116, text: '往事决不后悔' },
-      { time: 119, text: '不必再理会' },
-      { time: 122, text: '此刻朋友这杯酒' },
-      { time: 125, text: '最珍贵' },
-      { time: 129, text: '快把酒满上干了这杯' },
-      { time: 132, text: '大声歌唱好朋友好朋友' },
-      { time: 135, text: '今宵多欢畅' },
-      { time: 139, text: '理想改变了 我们的模样' },
-      { time: 143, text: '也让我懂得了要珍惜' },
-      { time: 146, text: '朋友的肩膀' },
-      { time: 150, text: '阳光总会在风雨之后' },
-      { time: 153, text: '撒向苍茫让我们抬起头' },
-      { time: 156, text: '学会了坚强' },
-      { time: 160, text: '就像朋友的这杯烈酒' },
-      { time: 163, text: '烫我心上温暖我凡事' },
-      { time: 166, text: '别再放心上' },
-      { time: 172, text: '快把酒满上干了这杯' },
-      { time: 175, text: '大声歌唱好朋友好朋友' },
-      { time: 178, text: '今宵多欢畅' },
-      { time: 182, text: '理想改变了 我们的模样' },
-      { time: 186, text: '也让我懂得了要珍惜' },
-      { time: 189, text: '朋友的肩膀' },
-      { time: 193, text: '阳光总会在风雨之后' },
-      { time: 196, text: '撒向苍茫让我们抬起头' },
-      { time: 199, text: '学会了坚强' },
-      { time: 203, text: '就像朋友的这杯烈酒' },
-      { time: 206, text: '烫我心上温暖我凡事' },
-      { time: 209, text: '别再放心上' },
+// ===== 歌单数据 =====
+const playlists = {
+  default: {
+    name: '默认歌单',
+    songs: [
+      {
+        name: '朋友的酒 (DJ-梦ノ結唱)',
+        artist: '希玥不月半',
+        meta: '词：积木鱼 · 曲：积木鱼',
+        audio: 'assets/bgm.mp3',
+        cover: 'images/cover.jpg',
+        bg: 'gif',
+        lyrics: [
+          { time: 0, text: '词：积木鱼' },
+          { time: 2, text: '曲：积木鱼' },
+          { time: 5, text: '昨日一去不复回 哦吔' },
+          { time: 9, text: '开心比什么都贵' },
+          { time: 13, text: '覆水不能再收回 哦吔' },
+          { time: 17, text: '桃花谢了有玫瑰' },
+          { time: 21, text: '人生几十年' },
+          { time: 24, text: '总会有风雨来陪' },
+          { time: 27, text: '潇潇洒洒赴会' },
+          { time: 30, text: '今不醉不归' },
+          { time: 33, text: '往事后不后悔' },
+          { time: 36, text: '慢慢去体会' },
+          { time: 39, text: '此刻朋友这杯酒' },
+          { time: 42, text: '最珍贵' },
+          { time: 46, text: '快把酒满上干了这杯' },
+          { time: 49, text: '大声歌唱好朋友好朋友' },
+          { time: 52, text: '今宵多欢畅' },
+          { time: 56, text: '理想改变了 我们的模样' },
+          { time: 60, text: '也让我懂得了要珍惜' },
+          { time: 63, text: '朋友的肩膀' },
+          { time: 67, text: '阳光总会在风雨之后' },
+          { time: 70, text: '撒向苍茫让我们抬起头' },
+          { time: 73, text: '学会了坚强' },
+          { time: 77, text: '就像朋友的这杯烈酒' },
+          { time: 80, text: '烫我心上温暖我凡事' },
+          { time: 83, text: '别再放心上' },
+          { time: 88, text: '今天我们来相会 哦吔' },
+          { time: 92, text: '深情斟满了酒杯' },
+          { time: 96, text: '岁月匆匆如流水 哦吔' },
+          { time: 100, text: '管他昨天谁是谁' },
+          { time: 104, text: '人生的旅程' },
+          { time: 107, text: '有苦有甜也有泪' },
+          { time: 110, text: '好汉不提当年' },
+          { time: 113, text: '酒再干一杯' },
+          { time: 116, text: '往事决不后悔' },
+          { time: 119, text: '不必再理会' },
+          { time: 122, text: '此刻朋友这杯酒' },
+          { time: 125, text: '最珍贵' },
+          { time: 129, text: '快把酒满上干了这杯' },
+          { time: 132, text: '大声歌唱好朋友好朋友' },
+          { time: 135, text: '今宵多欢畅' },
+          { time: 139, text: '理想改变了 我们的模样' },
+          { time: 143, text: '也让我懂得了要珍惜' },
+          { time: 146, text: '朋友的肩膀' },
+          { time: 150, text: '阳光总会在风雨之后' },
+          { time: 153, text: '撒向苍茫让我们抬起头' },
+          { time: 156, text: '学会了坚强' },
+          { time: 160, text: '就像朋友的这杯烈酒' },
+          { time: 163, text: '烫我心上温暖我凡事' },
+          { time: 166, text: '别再放心上' },
+          { time: 172, text: '快把酒满上干了这杯' },
+          { time: 175, text: '大声歌唱好朋友好朋友' },
+          { time: 178, text: '今宵多欢畅' },
+          { time: 182, text: '理想改变了 我们的模样' },
+          { time: 186, text: '也让我懂得了要珍惜' },
+          { time: 189, text: '朋友的肩膀' },
+          { time: 193, text: '阳光总会在风雨之后' },
+          { time: 196, text: '撒向苍茫让我们抬起头' },
+          { time: 199, text: '学会了坚强' },
+          { time: 203, text: '就像朋友的这杯烈酒' },
+          { time: 206, text: '烫我心上温暖我凡事' },
+          { time: 209, text: '别再放心上' },
+        ]
+      },
+      {
+        name: '忘情牛肉面',
+        artist: '马健涛, 李冰',
+        meta: '词：马健涛 · 曲：马健涛',
+        audio: 'assets/wangqing.mp3',
+        cover: 'images/cover-wangqing.jpg',
+        bg: 'cover',
+        lyrics: [
+          { time: 0, text: '我可以假装无所谓的离开' },
+          { time: 5, text: '到没有你的地方我再崩溃' },
+          { time: 10, text: '从无话不说再到无话可说' },
+          { time: 15, text: '我们之间到底怎么了' },
+          { time: 20, text: '我用你的名字酿一杯苦酒' },
+          { time: 25, text: '我醉得甘愿也会哭得情愿' },
+          { time: 30, text: '谢谢你让我爱了痛了懂了' },
+          { time: 35, text: '我不再纠缠打扰了' },
+          { time: 40, text: '老板给我来碗忘情牛肉面' },
+          { time: 45, text: '不放眼泪不放痛放忘情汤' },
+          { time: 50, text: '我要忘掉曾经你所有味道' },
+          { time: 55, text: '从此爱恨随意飘摇' },
+          { time: 60, text: '老板给我来碗忘情牛肉面' },
+          { time: 65, text: '喝下回忆吞下寂寞泪好咸' },
+          { time: 70, text: '眼泪划过脸颊流进耳朵里' },
+          { time: 75, text: '我要忘掉回忆里的伤' },
+          { time: 82, text: '老板给我来碗忘情牛肉面' },
+          { time: 87, text: '不放眼泪不放痛放忘情汤' },
+          { time: 92, text: '我要忘掉曾经你所有味道' },
+          { time: 97, text: '从此爱恨随意飘摇' },
+          { time: 102, text: '老板给我来碗忘情牛肉面' },
+          { time: 107, text: '喝下回忆吞下寂寞泪好咸' },
+          { time: 112, text: '眼泪划过脸颊流进耳朵里' },
+          { time: 117, text: '我要忘掉回忆里的伤' },
+          { time: 124, text: '夜色笼罩冷清的街巷' },
+          { time: 129, text: '心事反复在心底游荡' },
+          { time: 134, text: '热烈的爱已渐渐散场' },
+          { time: 139, text: '只剩孤独陪我到天亮' },
+          { time: 144, text: '那些海誓山盟的过往' },
+          { time: 149, text: '化作心口隐隐的旧伤' },
+          { time: 154, text: '痴情换来一身的迷惘' },
+          { time: 159, text: '只剩晚风抚慰我惆怅' },
+          { time: 164, text: '不想再为旧情而疯狂' },
+          { time: 169, text: '不想困在思念的围墙' },
+          { time: 174, text: '一碗热汤 抚平这沧桑' },
+          { time: 179, text: '老板给我来碗忘情牛肉面' },
+          { time: 184, text: '不放眼泪不放痛放忘情汤' },
+          { time: 189, text: '我要忘掉曾经你所有味道' },
+          { time: 194, text: '从此爱恨随意飘摇' },
+          { time: 199, text: '老板给我来碗忘情牛肉面' },
+          { time: 204, text: '喝下回忆吞下寂寞泪好咸' },
+          { time: 209, text: '眼泪划过脸颊流进耳朵里' },
+          { time: 214, text: '我要忘掉回忆里的伤' },
+          { time: 221, text: '灯火点点照不尽凄凉' },
+          { time: 226, text: '故事落幕只剩下回望' },
+          { time: 231, text: '付出真心却满身创伤' },
+          { time: 236, text: '情缘起落世事本无常' },
+          { time: 241, text: '昨日甜蜜都沦为过往' },
+          { time: 246, text: '不必纠结谁错谁应当' },
+          { time: 251, text: '把那爱恨全部都安放' },
+          { time: 256, text: '告别从前不再去回望' },
+          { time: 261, text: '老板给我来碗忘情牛肉面' },
+          { time: 266, text: '不放眼泪不放痛放忘情汤' },
+          { time: 271, text: '我要忘掉曾经你所有味道' },
+          { time: 276, text: '从此爱恨随意飘摇' },
+          { time: 281, text: '老板给我来碗忘情牛肉面' },
+          { time: 286, text: '喝下回忆吞下寂寞泪好咸' },
+          { time: 291, text: '眼泪划过脸颊流进耳朵里' },
+          { time: 296, text: '我要忘掉回忆里的伤' },
+        ]
+      },
+      {
+        name: '忘情牛肉面 (Remix)',
+        artist: '马健涛, 李冰',
+        meta: '词：马健涛 · 曲：马健涛',
+        audio: 'assets/wangqing-remix.mp3',
+        cover: 'images/cover-wangqing-remix.jpg',
+        bg: 'cover',
+        lyrics: [
+          { time: 0, text: '我可以假装无所谓的离开' },
+          { time: 5, text: '到没有你的地方我再崩溃' },
+          { time: 10, text: '从无话不说再到无话可说' },
+          { time: 15, text: '我们之间到底怎么了' },
+          { time: 20, text: '我用你的名字酿一杯苦酒' },
+          { time: 25, text: '我醉得甘愿也会哭得情愿' },
+          { time: 30, text: '谢谢你让我爱了痛了懂了' },
+          { time: 35, text: '我不再纠缠打扰了' },
+          { time: 40, text: '老板给我来碗忘情牛肉面' },
+          { time: 45, text: '不放眼泪不放痛放忘情汤' },
+          { time: 50, text: '我要忘掉曾经你所有味道' },
+          { time: 55, text: '从此爱恨随意飘摇' },
+          { time: 60, text: '老板给我来碗忘情牛肉面' },
+          { time: 65, text: '喝下回忆吞下寂寞泪好咸' },
+          { time: 70, text: '眼泪划过脸颊流进耳朵里' },
+          { time: 75, text: '我要忘掉回忆里的伤' },
+          { time: 82, text: '老板给我来碗忘情牛肉面' },
+          { time: 87, text: '不放眼泪不放痛放忘情汤' },
+          { time: 92, text: '我要忘掉曾经你所有味道' },
+          { time: 97, text: '从此爱恨随意飘摇' },
+          { time: 102, text: '老板给我来碗忘情牛肉面' },
+          { time: 107, text: '喝下回忆吞下寂寞泪好咸' },
+          { time: 112, text: '眼泪划过脸颊流进耳朵里' },
+          { time: 117, text: '我要忘掉回忆里的伤' },
+          { time: 124, text: '夜色笼罩冷清的街巷' },
+          { time: 129, text: '心事反复在心底游荡' },
+          { time: 134, text: '热烈的爱已渐渐散场' },
+          { time: 139, text: '只剩孤独陪我到天亮' },
+          { time: 144, text: '那些海誓山盟的过往' },
+          { time: 149, text: '化作心口隐隐的旧伤' },
+          { time: 154, text: '痴情换来一身的迷惘' },
+          { time: 159, text: '只剩晚风抚慰我惆怅' },
+          { time: 164, text: '不想再为旧情而疯狂' },
+          { time: 169, text: '不想困在思念的围墙' },
+          { time: 174, text: '一碗热汤 抚平这沧桑' },
+          { time: 179, text: '老板给我来碗忘情牛肉面' },
+          { time: 184, text: '不放眼泪不放痛放忘情汤' },
+          { time: 189, text: '我要忘掉曾经你所有味道' },
+          { time: 194, text: '从此爱恨随意飘摇' },
+          { time: 199, text: '老板给我来碗忘情牛肉面' },
+          { time: 204, text: '喝下回忆吞下寂寞泪好咸' },
+          { time: 209, text: '眼泪划过脸颊流进耳朵里' },
+          { time: 214, text: '我要忘掉回忆里的伤' },
+          { time: 221, text: '灯火点点照不尽凄凉' },
+          { time: 226, text: '故事落幕只剩下回望' },
+          { time: 231, text: '付出真心却满身创伤' },
+          { time: 236, text: '情缘起落世事本无常' },
+          { time: 241, text: '昨日甜蜜都沦为过往' },
+          { time: 246, text: '不必纠结谁错谁应当' },
+          { time: 251, text: '把那爱恨全部都安放' },
+          { time: 256, text: '告别从前不再去回望' },
+          { time: 261, text: '老板给我来碗忘情牛肉面' },
+          { time: 266, text: '不放眼泪不放痛放忘情汤' },
+          { time: 271, text: '我要忘掉曾经你所有味道' },
+          { time: 276, text: '从此爱恨随意飘摇' },
+          { time: 281, text: '老板给我来碗忘情牛肉面' },
+          { time: 286, text: '喝下回忆吞下寂寞泪好咸' },
+          { time: 291, text: '眼泪划过脸颊流进耳朵里' },
+          { time: 296, text: '我要忘掉回忆里的伤' },
+        ]
+      },
+      {
+        name: '雨爱',
+        artist: 'Settle一虾子',
+        meta: '词：Wonderful · 曲：金大洲',
+        audio: 'assets/yu-ai.mp3',
+        cover: 'images/cover-yu-ai.jpg',
+        bg: 'cover',
+        lyrics: [
+          { time: 0, text: '窗外的天气 就像是' },
+          { time: 4, text: '你多变的表情' },
+          { time: 8, text: '下雨了 雨陪我哭泣' },
+          { time: 13, text: '看不清 我也不想看清' },
+          { time: 18, text: '离开你 我安静的抽离' },
+          { time: 23, text: '不忍揭晓的剧情' },
+          { time: 28, text: '我的泪留在心里 学会放弃' },
+          { time: 34, text: '听雨的声音 一滴滴清晰' },
+          { time: 39, text: '你的呼吸像雨滴滴入我的爱里' },
+          { time: 44, text: '真希望雨能下不停' },
+          { time: 49, text: '让想念继续 让爱变透明' },
+          { time: 54, text: '我爱上给我勇气的Rainie love' },
+          { time: 60, text: '窗外的雨滴 一滴滴累积' },
+          { time: 65, text: '屋内的湿气像储存爱你的记忆' },
+          { time: 70, text: '真希望雨能下不停' },
+          { time: 75, text: '雨爱的秘密 能一直延续' },
+          { time: 80, text: '我相信我将会看到 彩虹的美丽' },
+          { time: 88, text: '屋内的湿气像储存爱你的记忆' },
+          { time: 93, text: '真希望雨能下不停' },
+          { time: 98, text: '雨爱的秘密 能一直延续' },
+          { time: 103, text: '我相信我将会看到 彩虹的美丽' },
+        ]
+      }
     ]
   },
-  {
-    name: '忘情牛肉面',
-    artist: '马健涛, 李冰',
-    meta: '词：马健涛 · 曲：马健涛',
-    audio: 'assets/wangqing.mp3',
-    cover: 'images/cover-wangqing.jpg',
-    bg: 'cover', // 用封面模糊
-    lyrics: [
-      { time: 0, text: '我可以假装无所谓的离开' },
-      { time: 5, text: '到没有你的地方我再崩溃' },
-      { time: 10, text: '从无话不说再到无话可说' },
-      { time: 15, text: '我们之间到底怎么了' },
-      { time: 20, text: '我用你的名字酿一杯苦酒' },
-      { time: 25, text: '我醉得甘愿也会哭得情愿' },
-      { time: 30, text: '谢谢你让我爱了痛了懂了' },
-      { time: 35, text: '我不再纠缠打扰了' },
-      { time: 40, text: '老板给我来碗忘情牛肉面' },
-      { time: 45, text: '不放眼泪不放痛放忘情汤' },
-      { time: 50, text: '我要忘掉曾经你所有味道' },
-      { time: 55, text: '从此爱恨随意飘摇' },
-      { time: 60, text: '老板给我来碗忘情牛肉面' },
-      { time: 65, text: '喝下回忆吞下寂寞泪好咸' },
-      { time: 70, text: '眼泪划过脸颊流进耳朵里' },
-      { time: 75, text: '我要忘掉回忆里的伤' },
-      { time: 82, text: '老板给我来碗忘情牛肉面' },
-      { time: 87, text: '不放眼泪不放痛放忘情汤' },
-      { time: 92, text: '我要忘掉曾经你所有味道' },
-      { time: 97, text: '从此爱恨随意飘摇' },
-      { time: 102, text: '老板给我来碗忘情牛肉面' },
-      { time: 107, text: '喝下回忆吞下寂寞泪好咸' },
-      { time: 112, text: '眼泪划过脸颊流进耳朵里' },
-      { time: 117, text: '我要忘掉回忆里的伤' },
-      { time: 124, text: '夜色笼罩冷清的街巷' },
-      { time: 129, text: '心事反复在心底游荡' },
-      { time: 134, text: '热烈的爱已渐渐散场' },
-      { time: 139, text: '只剩孤独陪我到天亮' },
-      { time: 144, text: '那些海誓山盟的过往' },
-      { time: 149, text: '化作心口隐隐的旧伤' },
-      { time: 154, text: '痴情换来一身的迷惘' },
-      { time: 159, text: '只剩晚风抚慰我惆怅' },
-      { time: 164, text: '不想再为旧情而疯狂' },
-      { time: 169, text: '不想困在思念的围墙' },
-      { time: 174, text: '一碗热汤 抚平这沧桑' },
-      { time: 179, text: '老板给我来碗忘情牛肉面' },
-      { time: 184, text: '不放眼泪不放痛放忘情汤' },
-      { time: 189, text: '我要忘掉曾经你所有味道' },
-      { time: 194, text: '从此爱恨随意飘摇' },
-      { time: 199, text: '老板给我来碗忘情牛肉面' },
-      { time: 204, text: '喝下回忆吞下寂寞泪好咸' },
-      { time: 209, text: '眼泪划过脸颊流进耳朵里' },
-      { time: 214, text: '我要忘掉回忆里的伤' },
-      { time: 221, text: '灯火点点照不尽凄凉' },
-      { time: 226, text: '故事落幕只剩下回望' },
-      { time: 231, text: '付出真心却满身创伤' },
-      { time: 236, text: '情缘起落世事本无常' },
-      { time: 241, text: '昨日甜蜜都沦为过往' },
-      { time: 246, text: '不必纠结谁错谁应当' },
-      { time: 251, text: '把那爱恨全部都安放' },
-      { time: 256, text: '告别从前不再去回望' },
-      { time: 261, text: '老板给我来碗忘情牛肉面' },
-      { time: 266, text: '不放眼泪不放痛放忘情汤' },
-      { time: 271, text: '我要忘掉曾经你所有味道' },
-      { time: 276, text: '从此爱恨随意飘摇' },
-      { time: 281, text: '老板给我来碗忘情牛肉面' },
-      { time: 286, text: '喝下回忆吞下寂寞泪好咸' },
-      { time: 291, text: '眼泪划过脸颊流进耳朵里' },
-      { time: 296, text: '我要忘掉回忆里的伤' },
-    ]
-  },
-  {
-    name: '忘情牛肉面 (Remix)',
-    artist: '马健涛, 李冰',
-    meta: '词：马健涛 · 曲：马健涛',
-    audio: 'assets/wangqing-remix.mp3',
-    cover: 'images/cover-wangqing-remix.jpg',
-    bg: 'cover',
-    lyrics: [
-      { time: 0, text: '我可以假装无所谓的离开' },
-      { time: 5, text: '到没有你的地方我再崩溃' },
-      { time: 10, text: '从无话不说再到无话可说' },
-      { time: 15, text: '我们之间到底怎么了' },
-      { time: 20, text: '我用你的名字酿一杯苦酒' },
-      { time: 25, text: '我醉得甘愿也会哭得情愿' },
-      { time: 30, text: '谢谢你让我爱了痛了懂了' },
-      { time: 35, text: '我不再纠缠打扰了' },
-      { time: 40, text: '老板给我来碗忘情牛肉面' },
-      { time: 45, text: '不放眼泪不放痛放忘情汤' },
-      { time: 50, text: '我要忘掉曾经你所有味道' },
-      { time: 55, text: '从此爱恨随意飘摇' },
-      { time: 60, text: '老板给我来碗忘情牛肉面' },
-      { time: 65, text: '喝下回忆吞下寂寞泪好咸' },
-      { time: 70, text: '眼泪划过脸颊流进耳朵里' },
-      { time: 75, text: '我要忘掉回忆里的伤' },
-      { time: 82, text: '老板给我来碗忘情牛肉面' },
-      { time: 87, text: '不放眼泪不放痛放忘情汤' },
-      { time: 92, text: '我要忘掉曾经你所有味道' },
-      { time: 97, text: '从此爱恨随意飘摇' },
-      { time: 102, text: '老板给我来碗忘情牛肉面' },
-      { time: 107, text: '喝下回忆吞下寂寞泪好咸' },
-      { time: 112, text: '眼泪划过脸颊流进耳朵里' },
-      { time: 117, text: '我要忘掉回忆里的伤' },
-      { time: 124, text: '夜色笼罩冷清的街巷' },
-      { time: 129, text: '心事反复在心底游荡' },
-      { time: 134, text: '热烈的爱已渐渐散场' },
-      { time: 139, text: '只剩孤独陪我到天亮' },
-      { time: 144, text: '那些海誓山盟的过往' },
-      { time: 149, text: '化作心口隐隐的旧伤' },
-      { time: 154, text: '痴情换来一身的迷惘' },
-      { time: 159, text: '只剩晚风抚慰我惆怅' },
-      { time: 164, text: '不想再为旧情而疯狂' },
-      { time: 169, text: '不想困在思念的围墙' },
-      { time: 174, text: '一碗热汤 抚平这沧桑' },
-      { time: 179, text: '老板给我来碗忘情牛肉面' },
-      { time: 184, text: '不放眼泪不放痛放忘情汤' },
-      { time: 189, text: '我要忘掉曾经你所有味道' },
-      { time: 194, text: '从此爱恨随意飘摇' },
-      { time: 199, text: '老板给我来碗忘情牛肉面' },
-      { time: 204, text: '喝下回忆吞下寂寞泪好咸' },
-      { time: 209, text: '眼泪划过脸颊流进耳朵里' },
-      { time: 214, text: '我要忘掉回忆里的伤' },
-      { time: 221, text: '灯火点点照不尽凄凉' },
-      { time: 226, text: '故事落幕只剩下回望' },
-      { time: 231, text: '付出真心却满身创伤' },
-      { time: 236, text: '情缘起落世事本无常' },
-      { time: 241, text: '昨日甜蜜都沦为过往' },
-      { time: 246, text: '不必纠结谁错谁应当' },
-      { time: 251, text: '把那爱恨全部都安放' },
-      { time: 256, text: '告别从前不再去回望' },
-      { time: 261, text: '老板给我来碗忘情牛肉面' },
-      { time: 266, text: '不放眼泪不放痛放忘情汤' },
-      { time: 271, text: '我要忘掉曾经你所有味道' },
-      { time: 276, text: '从此爱恨随意飘摇' },
-      { time: 281, text: '老板给我来碗忘情牛肉面' },
-      { time: 286, text: '喝下回忆吞下寂寞泪好咸' },
-      { time: 291, text: '眼泪划过脸颊流进耳朵里' },
-      { time: 296, text: '我要忘掉回忆里的伤' },
-    ]
-  },
-  {
-    name: '雨爱',
-    artist: 'Settle一虾子',
-    meta: '词：Wonderful · 曲：金大洲',
-    audio: 'assets/yu-ai.mp3',
-    cover: 'images/cover-yu-ai.jpg',
-    bg: 'cover',
-    lyrics: [
-      { time: 0, text: '窗外的天气 就像是' },
-      { time: 4, text: '你多变的表情' },
-      { time: 8, text: '下雨了 雨陪我哭泣' },
-      { time: 13, text: '看不清 我也不想看清' },
-      { time: 18, text: '离开你 我安静的抽离' },
-      { time: 23, text: '不忍揭晓的剧情' },
-      { time: 28, text: '我的泪留在心里 学会放弃' },
-      { time: 34, text: '听雨的声音 一滴滴清晰' },
-      { time: 39, text: '你的呼吸像雨滴滴入我的爱里' },
-      { time: 44, text: '真希望雨能下不停' },
-      { time: 49, text: '让想念继续 让爱变透明' },
-      { time: 54, text: '我爱上给我勇气的Rainie love' },
-      { time: 60, text: '窗外的雨滴 一滴滴累积' },
-      { time: 65, text: '屋内的湿气像储存爱你的记忆' },
-      { time: 70, text: '真希望雨能下不停' },
-      { time: 75, text: '雨爱的秘密 能一直延续' },
-      { time: 80, text: '我相信我将会看到 彩虹的美丽' },
-      { time: 88, text: '屋内的湿气像储存爱你的记忆' },
-      { time: 93, text: '真希望雨能下不停' },
-      { time: 98, text: '雨爱的秘密 能一直延续' },
-      { time: 103, text: '我相信我将会看到 彩虹的美丽' },
+  lishuo: {
+    name: 'li硕的直线歌',
+    songs: [
+      {
+        name: '天龙八部之宿敌',
+        artist: '许嵩',
+        meta: '词：许嵩 · 曲：许嵩',
+        audio: 'assets/tianlong-babu.mp3',
+        cover: 'images/cover-tianlong.jpg',
+        bg: 'cover',
+        lyrics: [
+          { time: 22, text: '会在何处见到你' },
+          { time: 26, text: '莫非前尘已注定' },
+          { time: 32, text: '飞过时空的距离' },
+          { time: 36, text: '却囿于刀剑光影' },
+          { time: 42, text: '三月春花渐次醒' },
+          { time: 46, text: '迢迢年华谁老去' },
+          { time: 52, text: '是劫是缘随我心' },
+          { time: 56, text: '除了你万敌不侵' },
+          { time: 62, text: '当恩怨各一半 我怎么圈揽' },
+          { time: 67, text: '看灯笼血红染 寻仇已太晚' },
+          { time: 72, text: '月下门童喟叹 昨夜太平长安' },
+          { time: 82, text: '当天上星河转 我命已定盘' },
+          { time: 87, text: '待绝笔墨痕干 宿敌已来犯' },
+          { time: 92, text: '我借你的孤单 今生恐怕难还' },
+          { time: 101, text: '缠扰孤岛的雪雨' },
+          { time: 105, text: '飘飘洒洒谁来停' },
+          { time: 109, text: '摘取一颗海上星' },
+          { time: 113, text: '陪我终夜不孤寂' },
+          { time: 118, text: '灵柩长埋深谷底' },
+          { time: 122, text: '没有永远的秘密' },
+          { time: 126, text: '染指江湖结悲局' },
+          { time: 130, text: '无人逃得过宿命' },
+          { time: 136, text: '当恩怨各一半 我怎么圈揽' },
+          { time: 141, text: '看灯笼血红染 寻仇已太晚' },
+          { time: 146, text: '月下门童喟叹 昨夜太平长安' },
+          { time: 156, text: '当天上星河转 我命已定盘' },
+          { time: 161, text: '待绝笔墨痕干 宿敌已来犯' },
+          { time: 166, text: '我借你的孤单 今生恐怕难还' },
+          { time: 175, text: '当恩怨各一半 我怎么圈揽' },
+          { time: 180, text: '看灯笼血红染 寻仇已太晚' },
+          { time: 185, text: '月下门童喟叹 昨夜太平长安' },
+          { time: 195, text: '当天上星河转 我命已定盘' },
+          { time: 200, text: '待绝笔墨痕干 宿敌已来犯' },
+          { time: 205, text: '我借你的孤单 今生恐怕难还' },
+        ]
+      },
+      {
+        name: '青春微恋',
+        artist: '何夜轩 / 南棽筠',
+        meta: '词：何夜轩 · 曲：南棽筠',
+        audio: 'assets/qingchun-weilian.mp3',
+        cover: 'images/cover-qingchun.jpg',
+        bg: 'cover',
+        lyrics: [
+          { time: 0, text: '亲爱的你还记得吗' },
+          { time: 4, text: '小时候把树叶砸成泥巴' },
+          { time: 8, text: '和他们一起过家家' },
+          { time: 12, text: '当爸爸的那个永远是他' },
+          { time: 16, text: '亲爱的你还记得吗' },
+          { time: 20, text: '池塘边手拉手想摘荷花' },
+          { time: 24, text: '顶荷叶下雨也不怕' },
+          { time: 28, text: '有时候闹了别扭不说话' },
+          { time: 33, text: '老师方言夹杂着普通话' },
+          { time: 37, text: '又有哪个倒霉蛋不听话' },
+          { time: 41, text: '你曾经说 长大要去加拿大' },
+          { time: 45, text: '当个海龟以后飞黄腾达' },
+          { time: 50, text: '隔壁班有人收到玫瑰花' },
+          { time: 54, text: '笑起来还露出颗虎牙' },
+          { time: 58, text: '你撇嘴说物质爱情太廉价' },
+          { time: 62, text: '就喜欢你嘟起嘴的样子不掺假' },
+          { time: 67, text: '教室窗外有人放了烟花' },
+          { time: 71, text: '不小心映红了你的脸颊' },
+          { time: 75, text: '你说烟花很美但只是刹那' },
+          { time: 79, text: '永恒的东西一直在变化' },
+          { time: 84, text: '学校植物园开了彼岸花' },
+          { time: 88, text: '你抬头问我有前世吗' },
+          { time: 92, text: '我呆住的样子可能有点傻' },
+          { time: 96, text: '直到你笑着说这个问题不好答' },
+          { time: 103, text: '亲爱的你还记得吗' },
+          { time: 107, text: '小时候把树叶砸成泥巴' },
+          { time: 111, text: '和他们一起过家家' },
+          { time: 115, text: '当爸爸的那个永远是他' },
+          { time: 119, text: '亲爱的你还记得吗' },
+          { time: 123, text: '池塘边手拉手想摘荷花' },
+          { time: 127, text: '顶荷叶下雨也不怕' },
+          { time: 131, text: '有时候闹了别扭不说话' },
+          { time: 136, text: '老师方言夹杂着普通话' },
+          { time: 140, text: '又有哪个倒霉蛋不听话' },
+          { time: 144, text: '你曾经说 长大要去加拿大' },
+          { time: 148, text: '当个海龟以后飞黄腾达' },
+          { time: 153, text: '隔壁班有人收到玫瑰花' },
+          { time: 157, text: '笑起来还露出颗虎牙' },
+          { time: 161, text: '你撇嘴说物质爱情太廉价' },
+          { time: 165, text: '就喜欢你嘟起嘴的样子不掺假' },
+          { time: 170, text: '教室窗外有人放了烟花' },
+          { time: 174, text: '不小心映红了你的脸颊' },
+          { time: 178, text: '你说烟花很美但只是刹那' },
+          { time: 182, text: '永恒的东西一直在变化' },
+          { time: 187, text: '学校植物园开了彼岸花' },
+          { time: 191, text: '你抬头问我有前世吗' },
+          { time: 195, text: '我呆住的样子可能有点傻' },
+          { time: 199, text: '直到你笑着说这个问题不好答' },
+        ]
+      }
     ]
   }
-];
+};
+
+// 歌单顺序
+const playlistOrder = ['default', 'lishuo'];
+const currentPlaylistId = playlistOrder[0]; // 当前默认歌单
 
 const audio = document.getElementById('audio');
 const playBtn = document.getElementById('playBtn');
@@ -1363,9 +1597,13 @@ const topArtistName = document.getElementById('topArtistName');
 const lyricsTitle = document.getElementById('lyricsTitle');
 const lyricsMeta = document.getElementById('lyricsMeta');
 const playlistPanel = document.getElementById('playlistPanel');
+const playlistTitle = document.getElementById('playlistTitle');
+const playlistCount = document.getElementById('playlistCount');
 const playlistItems = document.getElementById('playlistItems');
+const playlistSwitcher = document.getElementById('playlistSwitcher');
 const iosSwitcher = document.getElementById('iosSwitcher');
 const iosMainBtn = document.getElementById('iosMainBtn');
+const iosSongDots = document.getElementById('iosSongDots');
 const webSwitchBtn = document.getElementById('webSwitchBtn');
 const webContextMenu = document.getElementById('webContextMenu');
 const closeMenuBtn = document.getElementById('closeMenuBtn');
@@ -1377,6 +1615,7 @@ const dialogDesc2 = document.getElementById('dialogDesc2');
 const dialogCloseBtn = document.getElementById('dialogCloseBtn');
 const dialogOkBtn = document.getElementById('dialogOkBtn');
 
+let currentPlaylist = currentPlaylistId;
 let currentSongIndex = 0;
 let isPlaying = false;
 let isLoop = true;
@@ -1388,9 +1627,81 @@ let isDragging = false;
 let dragStartY = 0;
 let dragStartOffset = 0;
 let isCover1Active = true;
+let switchingPlaylist = false;
 
-// 初始化播放列表
-function initPlaylist() {
+function getCurrentSongs() { return playlists[currentPlaylist].songs; }
+function getCurrentSong() { return playlists[currentPlaylist].songs[currentSongIndex]; }
+
+// ===== 歌单切换器 =====
+function initPlaylistSwitcher() {
+  playlistSwitcher.innerHTML = '';
+  playlistOrder.forEach((pid, idx) => {
+    const pl = playlists[pid];
+    const card = document.createElement('div');
+    card.className = 'pl-card' + (pid === currentPlaylist ? ' active' : ' inactive');
+    card.dataset.playlist = pid;
+    const cover = pl.songs[0] ? pl.songs[0].cover : '';
+    card.innerHTML = `
+      <div class="pl-card-cover"><img src="${cover}" alt=""></div>
+      <div class="pl-card-info">
+        <div class="pl-card-name">${pl.name}</div>
+        <div class="pl-card-count">${pl.songs.length} 首</div>
+      </div>
+    `;
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (switchingPlaylist) return;
+      switchPlaylist(pid);
+    });
+    playlistSwitcher.appendChild(card);
+  });
+}
+
+// 切换歌单（翻卡片动画）
+function switchPlaylist(pid) {
+  if (pid === currentPlaylist || switchingPlaylist) return;
+  switchingPlaylist = true;
+
+  const oldCard = playlistSwitcher.querySelector('.pl-card.active');
+  const newCard = playlistSwitcher.querySelector(`.pl-card[data-playlist="${pid}"]`);
+  if (!oldCard || !newCard) { switchingPlaylist = false; return; }
+
+  // 旧卡片翻下去
+  oldCard.classList.remove('active');
+  oldCard.classList.add('flip-to-bottom');
+  // 新卡片翻上来
+  newCard.classList.remove('inactive');
+  newCard.classList.add('flip-to-top');
+
+  const wasPlaying = isPlaying;
+
+  setTimeout(() => {
+    // 动画结束，更新状态
+    oldCard.classList.remove('flip-to-bottom');
+    oldCard.classList.add('inactive');
+    newCard.classList.remove('flip-to-top');
+    newCard.classList.add('active');
+
+    currentPlaylist = pid;
+    currentSongIndex = 0;
+
+    // 切换播放列表内容
+    renderPlaylist();
+    // 切换当前歌曲
+    switchSong(0, true);
+
+    // 重建 iOS 小圆点
+    rebuildIosDots();
+
+    switchingPlaylist = false;
+  }, 500);
+}
+
+// ===== 播放列表渲染 =====
+function renderPlaylist() {
+  const songs = getCurrentSongs();
+  playlistTitle.textContent = playlists[currentPlaylist].name;
+  playlistCount.textContent = songs.length + '首';
   playlistItems.innerHTML = '';
   songs.forEach((song, index) => {
     const item = document.createElement('div');
@@ -1411,24 +1722,47 @@ function initPlaylist() {
   });
 }
 
+// ===== iOS 小圆点重建 =====
+function rebuildIosDots() {
+  iosSongDots.innerHTML = '';
+  const songs = getCurrentSongs();
+  songs.forEach((song, index) => {
+    const dot = document.createElement('div');
+    dot.className = 'ios-dot song-item' + (index === currentSongIndex ? ' current' : '');
+    dot.dataset.index = index;
+    dot.innerHTML = `
+      <img src="${song.cover}" alt="">
+      <span class="song-label">${song.name}</span>
+    `;
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const i = parseInt(dot.dataset.index);
+      switchSong(i);
+      iosSwitcher.classList.remove('expanded');
+    });
+    iosSongDots.appendChild(dot);
+  });
+}
+
 // 切换歌曲
-function switchSong(index) {
-  if (index === currentSongIndex) return;
-  
+function switchSong(index, force) {
+  const songs = getCurrentSongs();
+  if (!force && index === currentSongIndex) return;
+
   const wasPlaying = isPlaying;
   currentSongIndex = index;
-  const song = songs[index];
-  
+  const song = getCurrentSong();
+
   // 更新音频
   audio.src = song.audio;
   audio.currentTime = 0;
-  
+
   // 更新文字
   topSongName.textContent = song.name;
   topArtistName.textContent = song.artist;
   lyricsTitle.textContent = song.name;
   lyricsMeta.textContent = song.meta;
-  
+
   // 切换封面（渐变）
   const newCover = song.cover;
   if (isCover1Active) {
@@ -1441,10 +1775,9 @@ function switchSong(index) {
     coverImg2.style.opacity = '0';
   }
   isCover1Active = !isCover1Active;
-  
+
   // 切换背景
   if (song.bg === 'gif') {
-    // 用bg.gif
     if (isCover1Active) {
       bgLayer2.style.backgroundImage = "url('images/bg.gif')";
       bgLayer2.style.filter = 'blur(1px) brightness(0.5)';
@@ -1459,7 +1792,6 @@ function switchSong(index) {
       bgLayer2.style.opacity = '0';
     }
   } else {
-    // 用封面模糊
     if (isCover1Active) {
       bgLayer2.style.backgroundImage = `url('${song.cover}')`;
       bgLayer2.style.filter = 'blur(40px) brightness(0.4) saturate(1.2)';
@@ -1474,33 +1806,33 @@ function switchSong(index) {
       bgLayer2.style.opacity = '0';
     }
   }
-  
+
   // 更新歌词
   initLyrics();
   currentLyricIndex = -1;
   manualOffset = 0;
   userScrolled = false;
   scrollToLyric(0);
-  
+
   // 更新播放列表高亮
   document.querySelectorAll('.playlist-item').forEach((item, i) => {
     item.classList.toggle('active', i === index);
   });
-  
+
   // 更新iOS小圆点高亮
   document.querySelectorAll('.ios-dot.song-item').forEach((item, i) => {
     item.classList.toggle('current', i === index);
   });
-  
+
   // 播放
-  if (wasPlaying) {
+  if (wasPlaying || force) {
     audio.play().catch(e => console.error('播放失败:', e));
   }
 }
 
 // 初始化歌词
 function initLyrics() {
-  const lyrics = songs[currentSongIndex].lyrics;
+  const lyrics = getCurrentSong().lyrics;
   lyricsList.innerHTML = '';
   lyrics.forEach((item, index) => {
     const line = document.createElement('div');
@@ -1517,7 +1849,7 @@ function initLyrics() {
 
 // 滚动歌词
 function scrollToLyric(index) {
-  const lyrics = songs[currentSongIndex].lyrics;
+  const lyrics = getCurrentSong().lyrics;
   if (index < 0 || index >= lyrics.length) return;
   const lines = lyricsList.querySelectorAll('.lyrics-line');
   const lineHeight = lines[0] ? lines[0].offsetHeight : 38;
@@ -1550,7 +1882,7 @@ function startAutoReturnTimer() {
 }
 
 function updateLyrics(currentTime) {
-  const lyrics = songs[currentSongIndex].lyrics;
+  const lyrics = getCurrentSong().lyrics;
   let newIndex = -1;
   for (let i = lyrics.length - 1; i >= 0; i--) {
     if (currentTime >= lyrics[i].time) {
@@ -1573,7 +1905,7 @@ function updateLyrics(currentTime) {
 }
 
 function clampOffset(offset) {
-  const lyrics = songs[currentSongIndex].lyrics;
+  const lyrics = getCurrentSong().lyrics;
   const lines = lyricsList.querySelectorAll('.lyrics-line');
   const lineHeight = lines[0] ? lines[0].offsetHeight : 38;
   const maxOffset = lyrics.length * lineHeight;
@@ -1699,11 +2031,13 @@ progressBar.addEventListener('click', (e) => {
 });
 
 function prevSong() {
+  const songs = getCurrentSongs();
   const newIndex = (currentSongIndex - 1 + songs.length) % songs.length;
   switchSong(newIndex);
 }
 
 function nextSong() {
+  const songs = getCurrentSongs();
   const newIndex = (currentSongIndex + 1) % songs.length;
   switchSong(newIndex);
 }
@@ -1729,20 +2063,9 @@ iosMainBtn.addEventListener('click', (e) => {
   iosSwitcher.classList.toggle('expanded');
 });
 
-// iOS歌曲项点击
-document.querySelectorAll('.ios-dot.song-item').forEach(item => {
-  item.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const index = parseInt(item.dataset.index);
-    switchSong(index);
-    iosSwitcher.classList.remove('expanded');
-  });
-});
-
 // 网页切换按钮 - 显示Windows右键菜单
 webSwitchBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  // 定位菜单到按钮旁边
   const rect = webSwitchBtn.getBoundingClientRect();
   webContextMenu.style.top = (rect.top - 10) + 'px';
   webContextMenu.style.right = (window.innerWidth - rect.left + 10) + 'px';
@@ -1756,11 +2079,10 @@ document.querySelectorAll('.win-menu-item[data-web]').forEach(item => {
     const web = item.dataset.web;
     webContextMenu.classList.remove('show');
     iosSwitcher.classList.remove('expanded');
-    
+
     if (web === 'music') {
       // 当前页面，不跳转
     } else if (web === 'tafang') {
-      // 显示tafang停止服务公告
       showAnnouncement({
         title: '服务公告',
         heading: '该游戏暂时停止服务',
@@ -1768,7 +2090,6 @@ document.querySelectorAll('.win-menu-item[data-web]').forEach(item => {
         desc2: '<span class="label">反馈：</span><span class="email">shdb5166@163.com</span>（me9te6ors）'
       });
     } else if (web === 'phigros') {
-      // 跳转到Phigros游戏页面
       window.location.href = '../phigros/tapToStart/index.html';
     }
   });
@@ -1831,7 +2152,9 @@ document.addEventListener('keydown', (e) => {
 });
 
 // 初始化
-initPlaylist();
+initPlaylistSwitcher();
+renderPlaylist();
+rebuildIosDots();
 initLyrics();
 scrollToLyric(0);
 // 标记第一首为当前
