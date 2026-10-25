@@ -1160,11 +1160,11 @@ body {
     </div>
     <span class="menu-text">A. music（当前）</span>
   </div>
-  <div class="win-menu-item" data-web="tafang">
+  <div class="win-menu-item" data-web="ff0wiki">
     <div class="menu-icon">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
     </div>
-    <span class="menu-text">B. tafang-mod</span>
+    <span class="menu-text">B. ff0wiki</span>
   </div>
   <div class="win-menu-item" data-web="phigros">
     <div class="menu-icon">
@@ -2082,13 +2082,8 @@ document.querySelectorAll('.win-menu-item[data-web]').forEach(item => {
 
     if (web === 'music') {
       // 当前页面，不跳转
-    } else if (web === 'tafang') {
-      showAnnouncement({
-        title: '服务公告',
-        heading: '该游戏暂时停止服务',
-        desc1: '<span class="label">原因：</span><span class="value">游玩人数过少</span>',
-        desc2: '<span class="label">反馈：</span><span class="email">shdb5166@163.com</span>（me9te6ors）'
-      });
+    } else if (web === 'ff0wiki') {
+      window.open('https://studio.warfarin.wiki/char?id=chr_0036_jsspsi', '_blank', 'noopener');
     } else if (web === 'phigros') {
       window.location.href = '../phigros/tapToStart/index.html';
     }
