@@ -1499,7 +1499,8 @@ const playlists = {
         meta: '纯音乐 · 夏日海岸',
         audio: 'assets/lvse-dj.mp3',
         cover: 'images/bg-amiya.gif',
-        bg: 'cover',
+        bg: 'custom',
+        bgImg: 'images/cover-lvse.jpg',
         lyrics: [
           { time: 0, text: '— 纯音乐 · 绿色 DJ —' },
         ]
@@ -1898,6 +1899,21 @@ function switchSong(index, force) {
       bgLayer1.style.backgroundPosition = 'center';
       bgLayer1.style.filter = 'blur(1px) brightness(0.5)';
       bgLayer1.style.transform = 'none';
+      bgLayer1.style.opacity = '1';
+      bgLayer2.style.opacity = '0';
+    }
+  } else if (song.bg === 'custom') {
+    const bgImg = song.bgImg || song.cover;
+    if (isCover1Active) {
+      bgLayer2.style.backgroundImage = `url('${bgImg}')`;
+      bgLayer2.style.filter = 'blur(40px) brightness(0.4) saturate(1.2)';
+      bgLayer2.style.transform = 'scale(1.15)';
+      bgLayer2.style.opacity = '1';
+      bgLayer1.style.opacity = '0';
+    } else {
+      bgLayer1.style.backgroundImage = `url('${bgImg}')`;
+      bgLayer1.style.filter = 'blur(40px) brightness(0.4) saturate(1.2)';
+      bgLayer1.style.transform = 'scale(1.15)';
       bgLayer1.style.opacity = '1';
       bgLayer2.style.opacity = '0';
     }
