@@ -1906,12 +1906,16 @@ function switchSong(index, force) {
     const bgImg = song.bgImg || song.cover;
     if (isCover1Active) {
       bgLayer2.style.backgroundImage = `url('${bgImg}')`;
+      bgLayer2.style.backgroundSize = 'cover';
+      bgLayer2.style.backgroundPosition = 'center';
       bgLayer2.style.filter = 'blur(40px) brightness(0.4) saturate(1.2)';
       bgLayer2.style.transform = 'scale(1.15)';
       bgLayer2.style.opacity = '1';
       bgLayer1.style.opacity = '0';
     } else {
       bgLayer1.style.backgroundImage = `url('${bgImg}')`;
+      bgLayer1.style.backgroundSize = 'cover';
+      bgLayer1.style.backgroundPosition = 'center';
       bgLayer1.style.filter = 'blur(40px) brightness(0.4) saturate(1.2)';
       bgLayer1.style.transform = 'scale(1.15)';
       bgLayer1.style.opacity = '1';
