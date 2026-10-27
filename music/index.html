@@ -1193,6 +1193,19 @@ body {
     </div>
     <span class="menu-text">C. phigros</span>
   </div>
+  <div class="win-menu-item" data-web="endfield">
+    <div class="menu-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="menu-text">D. β 终末地<span class="new-badge">开发中</span></span>
+  </div>
+  <div class="win-menu-divider"></div>
+  <div class="win-menu-item" id="downloadZipBtn">
+    <div class="menu-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+    </div>
+    <span class="menu-text">下载整站源码 ZIP</span>
+  </div>
   <div class="win-menu-divider"></div>
   <div class="win-menu-item" id="closeMenuBtn">
     <div class="menu-icon">
@@ -1585,6 +1598,17 @@ const playlists = {
           { time: 191, text: '你抬头问我有前世吗' },
           { time: 195, text: '我呆住的样子可能有点傻' },
           { time: 199, text: '直到你笑着说这个问题不好答' },
+        ]
+      },
+      {
+        name: '绿色 (DJ)',
+        artist: '阿岩',
+        meta: '纯音乐 · 夏日海岸',
+        audio: 'assets/lvse-dj.mp3',
+        cover: 'images/cover-lvse.jpg',
+        bg: 'cover',
+        lyrics: [
+          { time: 0, text: '— 纯音乐 · 绿色 DJ —' },
         ]
       }
     ]
@@ -2107,6 +2131,12 @@ document.querySelectorAll('.win-menu-item[data-web]').forEach(item => {
       window.open('https://studio.warfarin.wiki/char?id=chr_0036_jsspsi', '_blank', 'noopener');
     } else if (web === 'phigros') {
       window.location.href = '../phigros/tapToStart/index.html';
+    } else if (web === 'endfield') {
+      showDialog({
+        heading: 'β 终末地',
+        desc1: '开发中 · 进入地图构建阶段',
+        desc2: '正在加载 3D 武陵地图,敬请期待。'
+      });
     }
   });
 });
@@ -2135,6 +2165,13 @@ announcementDialog.addEventListener('click', (e) => {
 closeMenuBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   webContextMenu.classList.remove('show');
+});
+
+// 下载整站源码 ZIP
+document.getElementById('downloadZipBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  webContextMenu.classList.remove('show');
+  window.open('https://github.com/shdb5166-art/rule-of-law-tianjin/archive/refs/heads/main.zip', '_blank', 'noopener');
 });
 
 // 点击UI外关闭
