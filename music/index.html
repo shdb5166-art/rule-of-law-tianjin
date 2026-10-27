@@ -21,7 +21,7 @@ body {
   top: 0; left: 0;
   width: 100%; height: 100%;
   z-index: 0;
-  background: url('images/bg-amiya.jpg') center/cover no-repeat;
+  background: url('images/bg.gif') center/cover no-repeat;
   filter: blur(1px) brightness(0.5);
   transform: scale(1.05);
   transition: opacity 0.8s ease;
@@ -1492,6 +1492,17 @@ const playlists = {
           { time: 98, text: '雨爱的秘密 能一直延续' },
           { time: 103, text: '我相信我将会看到 彩虹的美丽' },
         ]
+      },
+      {
+        name: '绿色 (DJ)',
+        artist: '阿岩',
+        meta: '纯音乐 · 夏日海岸',
+        audio: 'assets/lvse-dj.mp3',
+        cover: 'images/cover-lvse.jpg',
+        bg: 'amiya',
+        lyrics: [
+          { time: 0, text: '— 纯音乐 · 绿色 DJ —' },
+        ]
       }
     ]
   },
@@ -1598,17 +1609,6 @@ const playlists = {
           { time: 191, text: '你抬头问我有前世吗' },
           { time: 195, text: '我呆住的样子可能有点傻' },
           { time: 199, text: '直到你笑着说这个问题不好答' },
-        ]
-      },
-      {
-        name: '绿色 (DJ)',
-        artist: '阿岩',
-        meta: '纯音乐 · 夏日海岸',
-        audio: 'assets/lvse-dj.mp3',
-        cover: 'images/cover-lvse.jpg',
-        bg: 'cover',
-        lyrics: [
-          { time: 0, text: '— 纯音乐 · 绿色 DJ —' },
         ]
       }
     ]
@@ -1772,6 +1772,7 @@ function rebuildIosDots() {
   iosSongDots.innerHTML = '';
   const songs = getCurrentSongs();
   songs.forEach((song, index) => {
+    if (index >= 2) return; // 第三首及以后合并到"更多"菜单
     const dot = document.createElement('div');
     dot.className = 'ios-dot song-item' + (index === currentSongIndex ? ' current' : '');
     dot.dataset.index = index;
@@ -1787,6 +1788,52 @@ function rebuildIosDots() {
     });
     iosSongDots.appendChild(dot);
   });
+
+  // 第三个及以后合并成"更多歌曲"按钮
+  if (songs.length > 2) {
+    const more = document.createElement('div');
+    more.className = 'ios-dot song-item';
+    more.id = 'moreSongsBtn';
+    more.title = '更多歌曲';
+    more.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>`;
+    more.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showSongMenu(more);
+    });
+    iosSongDots.appendChild(more);
+  }
+}
+
+// 歌曲列表菜单(win 风格)
+function showSongMenu(anchor) {
+  let menu = document.getElementById('songContextMenu');
+  if (!menu) {
+    menu = document.createElement('div');
+    menu.id = 'songContextMenu';
+    menu.className = 'win-context-menu';
+    document.body.appendChild(menu);
+  }
+  const songs = getCurrentSongs();
+  menu.innerHTML = '<div class="win-menu-header">选择歌曲</div>';
+  songs.forEach((song, i) => {
+    const item = document.createElement('div');
+    item.className = 'win-menu-item' + (i === currentSongIndex ? ' active' : '');
+    item.innerHTML = `
+      <div class="menu-icon"><img src="${song.cover}" style="width:18px;height:18px;border-radius:4px;object-fit:cover"/></div>
+      <span class="menu-text">${song.name}</span>
+    `;
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.classList.remove('show');
+      iosSwitcher.classList.remove('expanded');
+      switchSong(i);
+    });
+    menu.appendChild(item);
+  });
+  const rect = anchor.getBoundingClientRect();
+  menu.style.top = (rect.top - 10) + 'px';
+  menu.style.right = (window.innerWidth - rect.left + 10) + 'px';
+  menu.classList.add('show');
 }
 
 // 切换歌曲
@@ -1823,6 +1870,20 @@ function switchSong(index, force) {
 
   // 切换背景
   if (song.bg === 'gif') {
+    if (isCover1Active) {
+      bgLayer2.style.backgroundImage = "url('images/bg.gif')";
+      bgLayer2.style.filter = 'blur(1px) brightness(0.5)';
+      bgLayer2.style.transform = 'scale(1.05)';
+      bgLayer2.style.opacity = '1';
+      bgLayer1.style.opacity = '0';
+    } else {
+      bgLayer1.style.backgroundImage = "url('images/bg.gif')";
+      bgLayer1.style.filter = 'blur(1px) brightness(0.5)';
+      bgLayer1.style.transform = 'scale(1.05)';
+      bgLayer1.style.opacity = '1';
+      bgLayer2.style.opacity = '0';
+    }
+  } else if (song.bg === 'amiya') {
     if (isCover1Active) {
       bgLayer2.style.backgroundImage = "url('images/bg-amiya.jpg')";
       bgLayer2.style.filter = 'blur(1px) brightness(0.5)';
@@ -2184,6 +2245,10 @@ document.addEventListener('click', (e) => {
   }
   if (!webContextMenu.contains(e.target) && !webSwitchBtn.contains(e.target)) {
     webContextMenu.classList.remove('show');
+  }
+  const sm = document.getElementById('songContextMenu');
+  if (sm && !sm.contains(e.target) && !e.target.closest('#moreSongsBtn')) {
+    sm.classList.remove('show');
   }
 });
 
