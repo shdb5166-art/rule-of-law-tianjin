@@ -8,30 +8,27 @@ echo.
 
 cd /d "%~dp0"
 
-where python >nul 2>&1
-if %errorlevel% equ 0 (
-    set "SERVER_CMD=python -m http.server 8000"
-    goto :start_server
-)
-
-where py >nul 2>&1
-if %errorlevel% equ 0 (
-    set "SERVER_CMD=py -m http.server 8000"
-    goto :start_server
-)
-
-where node >nul 2>&1
-if %errorlevel% equ 0 (
-    set "SERVER_CMD=npx --yes serve -l 8000 ."
-    goto :start_server
-)
-
+:: Step 1: Check portable Python first (most reliable)
 if exist ".python\python.exe" (
     set "SERVER_CMD=.python\python.exe -m http.server 8000"
     goto :start_server
 )
 
-echo [INFO] Python / Node.js not found.
+:: Step 2: Try system Python (but verify it actually works)
+python --version >nul 2>&1
+if %errorlevel% equ 0 (
+    set "SERVER_CMD=python -m http.server 8000"
+    goto :start_server
+)
+
+py --version >nul 2>&1
+if %errorlevel% equ 0 (
+    set "SERVER_CMD=py -m http.server 8000"
+    goto :start_server
+)
+
+:: Step 3: Download portable Python
+echo [INFO] No working Python found.
 echo [INFO] Downloading portable Python (~10MB)...
 echo.
 
