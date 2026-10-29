@@ -1279,11 +1279,11 @@ body {
     </div>
     <span class="menu-text">C. phigros</span>
   </div>
-  <div class="win-menu-item" data-web="endfield">
+  <div class="win-menu-item" data-web="dsh">
     <div class="menu-icon">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
-    <span class="menu-text">D. β 终末地<span class="new-badge">开发中</span></span>
+    <span class="menu-text">D. deepseek harness<span class="new-badge">1030 新页面</span></span>
   </div>
   <div class="win-menu-divider"></div>
   <div class="win-menu-item" id="downloadZipBtn">
@@ -2481,12 +2481,8 @@ document.querySelectorAll('.win-menu-item[data-web]').forEach(item => {
       window.open('https://studio.warfarin.wiki/char?id=chr_0036_jsspsi', '_blank', 'noopener');
     } else if (web === 'phigros') {
       window.location.href = '../phigros/tapToStart/index.html';
-    } else if (web === 'endfield') {
-      showDialog({
-        heading: 'β 终末地',
-        desc1: '开发中 · 进入地图构建阶段',
-        desc2: '正在加载 3D 武陵地图,敬请期待。'
-      });
+    } else if (web === 'dsh') {
+      window.location.href = '../dsh-startup/index.html';
     }
   });
 });
