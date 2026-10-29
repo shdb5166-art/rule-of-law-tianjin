@@ -2532,10 +2532,10 @@ document.getElementById('downloadSourceDialog').addEventListener('click', (e) =>
   }
 });
 
-// GitHub 原站下载
+// GitHub 原站下载（gh-proxy 镜像加速）
 document.getElementById('dlSourceGithub').addEventListener('click', () => {
   document.getElementById('downloadSourceDialog').classList.remove('show');
-  window.open('https://github.com/shdb5166-art/rule-of-law-tianjin/archive/refs/heads/main.zip', '_blank', 'noopener');
+  window.open('https://gh-proxy.com/https://github.com/shdb5166-art/rule-of-law-tianjin/archive/refs/heads/main.zip', '_blank', 'noopener');
 });
 
 // 特殊 CDN 加速下载
