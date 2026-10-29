@@ -837,52 +837,44 @@ body {
   cursor: grabbing;
 }
 
-/* 歌单切换上下按钮 - 磨砂玻璃 */
-.pl-switch-btn {
+/* 歌单切换"下一个"按钮 - 磨砂玻璃 */
+.pl-next-btn {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  right: 10px;
+  bottom: 10px;
+  padding: 6px 14px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
   cursor: pointer;
-  z-index: 10;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(12px) saturate(1.5);
-  -webkit-backdrop-filter: blur(12px) saturate(1.5);
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  z-index: 20;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(14px) saturate(1.5);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
   transition: all 0.25s ease;
-  color: rgba(255,255,255,0.9);
-  font-size: 16px;
+  color: rgba(255,255,255,0.95);
+  font-size: 12px;
+  font-weight: 500;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.pl-switch-btn:hover {
-  background: rgba(255,255,255,0.25);
-  transform: translateX(-50%) scale(1.08);
+.pl-next-btn:hover {
+  background: rgba(255,255,255,0.28);
+  transform: scale(1.04);
 }
 
-.pl-switch-btn:active {
-  transform: translateX(-50%) scale(0.95);
+.pl-next-btn:active {
+  transform: scale(0.96);
 }
 
-.pl-switch-btn:disabled {
+.pl-next-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
   pointer-events: none;
-}
-
-.pl-switch-btn.up {
-  top: 6px;
-}
-
-.pl-switch-btn.down {
-  bottom: 6px;
 }
 
 .pl-card {
@@ -1171,8 +1163,7 @@ body {
     <span class="count" id="playlistCount">4首</span>
   </div>
   <div class="playlist-switcher" id="playlistSwitcher">
-    <div class="pl-switch-btn up" id="plSwitchUp" title="上一个歌单">▲</div>
-    <div class="pl-switch-btn down" id="plSwitchDown" title="下一个歌单">▼</div>
+    <div class="pl-next-btn" id="plNextBtn" title="下一个歌单">下一个 ›</div>
   </div>
   <div class="playlist-items" id="playlistItems"></div>
 </div>
@@ -1759,8 +1750,7 @@ const playlistTitle = document.getElementById('playlistTitle');
 const playlistCount = document.getElementById('playlistCount');
 const playlistItems = document.getElementById('playlistItems');
 const playlistSwitcher = document.getElementById('playlistSwitcher');
-const plSwitchUp = document.getElementById('plSwitchUp');
-const plSwitchDown = document.getElementById('plSwitchDown');
+const plNextBtn = document.getElementById('plNextBtn');
 const iosSwitcher = document.getElementById('iosSwitcher');
 const iosMainBtn = document.getElementById('iosMainBtn');
 const iosSongDots = document.getElementById('iosSongDots');
@@ -1818,14 +1808,8 @@ function initPlaylistSwitcher() {
   updatePlaylistCardLevels();
   initPlaylistSwipe();
 
-  // 上下按钮切换歌单
-  plSwitchUp.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (switchingPlaylist) return;
-    const currentIdx = playlistOrder.indexOf(currentPlaylist);
-    if (currentIdx > 0) switchPlaylist(playlistOrder[currentIdx - 1]);
-  });
-  plSwitchDown.addEventListener('click', (e) => {
+  // 下一个按钮切换歌单
+  plNextBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (switchingPlaylist) return;
     const currentIdx = playlistOrder.indexOf(currentPlaylist);
@@ -1850,9 +1834,8 @@ function updatePlaylistCardLevels() {
       card.classList.add('level-3');
     }
   });
-  // 更新上下按钮状态
-  plSwitchUp.disabled = currentIdx === 0;
-  plSwitchDown.disabled = currentIdx === playlistOrder.length - 1;
+  // 更新下一个按钮状态
+  plNextBtn.disabled = currentIdx === playlistOrder.length - 1;
 }
 
 // 上下滑动切换歌单
