@@ -837,6 +837,54 @@ body {
   cursor: grabbing;
 }
 
+/* 歌单切换上下按钮 - 磨砂玻璃 */
+.pl-switch-btn {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px) saturate(1.5);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: all 0.25s ease;
+  color: rgba(255,255,255,0.9);
+  font-size: 16px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pl-switch-btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateX(-50%) scale(1.08);
+}
+
+.pl-switch-btn:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+.pl-switch-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pl-switch-btn.up {
+  top: 6px;
+}
+
+.pl-switch-btn.down {
+  bottom: 6px;
+}
+
 .pl-card {
   position: absolute;
   left: 50%;
@@ -1122,7 +1170,10 @@ body {
     <span class="title" id="playlistTitle">播放列表</span>
     <span class="count" id="playlistCount">4首</span>
   </div>
-  <div class="playlist-switcher" id="playlistSwitcher"></div>
+  <div class="playlist-switcher" id="playlistSwitcher">
+    <div class="pl-switch-btn up" id="plSwitchUp" title="上一个歌单">▲</div>
+    <div class="pl-switch-btn down" id="plSwitchDown" title="下一个歌单">▼</div>
+  </div>
   <div class="playlist-items" id="playlistItems"></div>
 </div>
 
@@ -1708,6 +1759,8 @@ const playlistTitle = document.getElementById('playlistTitle');
 const playlistCount = document.getElementById('playlistCount');
 const playlistItems = document.getElementById('playlistItems');
 const playlistSwitcher = document.getElementById('playlistSwitcher');
+const plSwitchUp = document.getElementById('plSwitchUp');
+const plSwitchDown = document.getElementById('plSwitchDown');
 const iosSwitcher = document.getElementById('iosSwitcher');
 const iosMainBtn = document.getElementById('iosMainBtn');
 const iosSongDots = document.getElementById('iosSongDots');
@@ -1764,6 +1817,20 @@ function initPlaylistSwitcher() {
   });
   updatePlaylistCardLevels();
   initPlaylistSwipe();
+
+  // 上下按钮切换歌单
+  plSwitchUp.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (switchingPlaylist) return;
+    const currentIdx = playlistOrder.indexOf(currentPlaylist);
+    if (currentIdx > 0) switchPlaylist(playlistOrder[currentIdx - 1]);
+  });
+  plSwitchDown.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (switchingPlaylist) return;
+    const currentIdx = playlistOrder.indexOf(currentPlaylist);
+    if (currentIdx < playlistOrder.length - 1) switchPlaylist(playlistOrder[currentIdx + 1]);
+  });
 }
 
 // 更新所有卡片的层级（堆叠效果）
@@ -1783,6 +1850,9 @@ function updatePlaylistCardLevels() {
       card.classList.add('level-3');
     }
   });
+  // 更新上下按钮状态
+  plSwitchUp.disabled = currentIdx === 0;
+  plSwitchDown.disabled = currentIdx === playlistOrder.length - 1;
 }
 
 // 上下滑动切换歌单
